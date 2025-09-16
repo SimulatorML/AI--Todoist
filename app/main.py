@@ -6,6 +6,7 @@ import asyncio
 from dotenv import load_dotenv
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
+import re
 
 from .todoist_client import TodoistClient
 from .models import TodoistTask, BotResponse
@@ -13,6 +14,8 @@ from .database import user_storage
 
 # Load environment variables
 load_dotenv()
+
+token_regex = re.compile('^[a-z\\d]{40}$')
 
 # Configure logging
 logging.basicConfig(
@@ -38,51 +41,16 @@ async def start_command(message):
 
 **Быстрый старт:**
 1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте `/token ВАШ_ТОКЕН_ЗДЕСЬ`
+2. Отправьте `ВАШ_ТОКЕН_ЗДЕСЬ`
 3. Отправьте любое сообщение, чтобы создать задачу!
 
 **Команды:**
 • `/start` - Показать это сообщение
-• `/token <ваш_todoist_токен>` - Установить ваш API токен Todoist
 • `/help` - Получить помощь
 
 Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
     """
     await bot.reply_to(message, welcome_text)
-
-
-@bot.message_handler(commands=['token'])
-async def token_command(message):
-    """Handle /token command to store user's Todoist token."""
-    user_id = message.from_user.id
-
-    # Extract token from message
-    parts = message.text.split(maxsplit=1)
-    if len(parts) != 2:
-        await bot.reply_to(
-            message, "❌ Пожалуйста, укажите ваш токен Todoist.\n\n"
-            "Использование: `/token ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
-            "Получите токен здесь: https://todoist.com/prefs/integrations")
-        return
-
-    token = parts[1].strip()
-
-    # Validate token by testing API connection
-    try:
-        todoist_client = TodoistClient(token)
-        await todoist_client.get_projects()  # Test API connection
-
-        # Store token
-        await user_storage.store_token(user_id, token)
-        await bot.reply_to(
-            message, "✅ Токен успешно сохранен!\n\n"
-            "Теперь вы можете отправлять мне сообщения для создания задач в Todoist."
-        )
-
-    except Exception as e:
-        await bot.reply_to(
-            message, f"❌ Неверный токен или ошибка API: {str(e)}\n\n"
-            "Пожалуйста, проверьте ваш токен и попробуйте снова.")
 
 
 @bot.message_handler(commands=['help'])
@@ -93,7 +61,7 @@ async def help_command(message):
 
 **Настройка:**
 1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте: `/token ВАШ_ТОКЕН_ЗДЕСЬ`
+2. Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`
 
 **Использование:**
 • Отправьте любое текстовое сообщение чтобы создать задачу
@@ -107,7 +75,6 @@ async def help_command(message):
 
 **Команды:**
 • `/start` - Приветственное сообщение
-• `/token <токен>` - Установить ваш токен Todoist
 • `/help` - Это справочное сообщение
 
 **Возможности:**
@@ -125,11 +92,31 @@ async def handle_message(message):
     user_id = message.from_user.id
     message_text = message.text
 
+    if token_regex.search(message_text):
+        # Validate token by testing API connection
+        try:
+            todoist_client = TodoistClient(message_text)
+            await todoist_client.get_projects()  # Test API connection
+
+            # Store token
+            await user_storage.store_token(user_id, message_text)
+            await bot.reply_to(
+                message, "✅ Токен успешно сохранен!\n\n"
+                "Теперь вы можете отправлять мне сообщения для создания задач в Todoist."
+            )
+            return
+
+        except Exception as e:
+            await bot.reply_to(
+                message, f"❌ Неверный токен или ошибка API: {str(e)}\n\n"
+                "Пожалуйста, проверьте ваш токен и попробуйте снова.")
+            return
+
     # Check if user has token
     if not await user_storage.has_token(user_id):
         await bot.reply_to(
             message, "❌ Сначала установите ваш токен Todoist!\n\n"
-            "Отправьте: `/token ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
+            "Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
             "Получите токен здесь: https://todoist.com/prefs/integrations")
         return
 
@@ -138,7 +125,7 @@ async def handle_message(message):
     if not todoist_token:
         await bot.reply_to(
             message,
-            "❌ Ошибка получения вашего токена. Пожалуйста, установите его заново с помощью `/token`"
+            "❌ Ошибка получения вашего токена. Пожалуйста, установите его заново"
         )
         return
 
