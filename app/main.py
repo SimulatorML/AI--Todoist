@@ -107,6 +107,15 @@ async def callback_help(call):
     await bot.answer_callback_query(call.id)
 
 
+@bot.message_handler(content_types=['video'])
+async def get_video_file_id(message):
+    """Handle video messages and return file_id."""
+    file_id = message.video.file_id
+    response_text = f"📹 <b>File ID видео:</b>\n<code>{file_id}</code>\n\n💡 Этот ID можно использовать в коде для отправки видео."
+    
+    await bot.reply_to(message, response_text, parse_mode='HTML')
+
+
 @bot.message_handler(func=lambda message: True)
 async def handle_message(message):
     """Handle all text messages and create Todoist tasks."""
