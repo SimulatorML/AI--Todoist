@@ -39,7 +39,7 @@ async def start_command(message):
 
 Я помогу вам создавать задачи в Todoist прямо из Telegram.
 
-**Быстрый старт:**
+**Быстрый старт**:
 1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
 2. Отправьте `ВАШ_ТОКЕН_ЗДЕСЬ`
 3. Отправьте любое сообщение, чтобы создать задачу!
