@@ -45,8 +45,8 @@ async def start_command(message):
 3. Отправьте любое сообщение, чтобы создать задачу!
 
 <b>Команды</b>:
-• /start - Показать инструкцию
-• /help - Получить помощь
+• /start - Как начать
+• /help - Примеры использования
 
 Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
     """
@@ -74,7 +74,7 @@ async def help_command(message):
 • "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
 
 <b>Команды</b>:
-• /start - Показать инструкцию
+• /start - Как начать
 • /help - Это справочное сообщение
 
 <b>Возможности</b>:
@@ -181,8 +181,8 @@ async def handle_message(message):
 async def setup_bot_commands():
     """Set up bot menu commands."""
     commands = [
-        types.BotCommand("start", "Показать инструкцию"),
-        types.BotCommand("help", "Получить помощь"),
+        types.BotCommand("start", "Как начать"),
+        types.BotCommand("help", "Примеры использования"),
     ]
     await bot.set_my_commands(commands)
     logger.info("Bot menu commands set up successfully")
