@@ -9,7 +9,7 @@ class TodoistTask(BaseModel):
     content: str
     project_id: Optional[str] = None
     due_string: Optional[str] = None
-    priority: int = 3
+    priority: int = 2
     request_id: Optional[str] = None
 
 

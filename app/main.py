@@ -6,6 +6,7 @@ import asyncio
 from dotenv import load_dotenv
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import re
 
 from .todoist_client import TodoistClient
@@ -28,6 +29,9 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 if not TELEGRAM_BOT_TOKEN:
     raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required")
 
+# Optional start video file_id
+START_VIDEO_FILE_ID = os.getenv('START_VIDEO_FILE_ID')
+
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
 
@@ -35,55 +39,92 @@ bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 async def start_command(message):
     """Handle /start command."""
     welcome_text = """
-🤖 Добро пожаловать в Todoist Бот!
+⚡ Превращай любое сообщение в задачу Todoist за секунду!
 
-Я помогу вам создавать задачи в Todoist прямо из Telegram.
-
-**Быстрый старт:**
-1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте `ВАШ_ТОКЕН_ЗДЕСЬ`
-3. Отправьте любое сообщение, чтобы создать задачу!
-
-**Команды:**
-• `/start` - Показать это сообщение
-• `/help` - Получить помощь
-
-Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
+🚀 <b>Почему это удобно</b>:
+• Создавай задачи за секунды, не покидая Telegram
+• Любая мысль мгновенно попадает в твой Todoist
+• Никаких переключений между приложениями
     """
-    await bot.reply_to(message, welcome_text)
+
+    # Create inline keyboard with help button
+    keyboard = InlineKeyboardMarkup()
+    help_button = InlineKeyboardButton("Как начать пользоваться",
+                                       callback_data="show_help")
+    keyboard.add(help_button)
+
+    # Send video if file_id is configured, otherwise send text message
+    if START_VIDEO_FILE_ID:
+        await bot.send_video(message.chat.id,
+                             video=START_VIDEO_FILE_ID,
+                             caption=welcome_text,
+                             parse_mode='HTML',
+                             reply_markup=keyboard)
+    else:
+        await bot.send_message(message.chat.id,
+                               welcome_text,
+                               parse_mode='HTML',
+                               reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
 async def help_command(message):
     """Handle /help command."""
     help_text = """
-🤖 **Справка по Todoist Боту**
+🤖 <b>Справка по Todoist Боту</b>
 
-**Настройка:**
-1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`
+<b>Быстрый старт</b>:
+1. Получите ваш API токен Todoist: https://todoist.com/prefs/integrations 
+   📋 Вкладка "Для разработчиков" → кнопка "Скопировать токен"
+2. Отправьте токен прямо в бота сообщением
+3. Отправьте любое сообщение, чтобы создать задачу!
 
-**Использование:**
-• Отправьте любое текстовое сообщение чтобы создать задачу
-• Задачи создаются в ваших Входящих с приоритетом 3
+<b>Использование</b>:
+• Отправьте любое текстовое сообщение, чтобы создать задачу
+• Задачи создаются в ваших Входящих с приоритетом P3 (средний)
 • Каждое сообщение становится одной задачей
 
-**Примеры:**
+<b>Примеры</b>:
 • "Купить продукты" → Задача: "Купить продукты"
 • "Позвонить стоматологу завтра" → Задача: "Позвонить стоматологу завтра"
 • "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
-
-**Команды:**
-• `/start` - Приветственное сообщение
-• `/help` - Это справочное сообщение
-
-**Возможности:**
-• ✅ Защита от дублирования
-• ✅ Поддержка нескольких пользователей
-• ✅ Обработка ошибок
-• ✅ Асинхронная обработка
     """
-    await bot.reply_to(message, help_text)
+    await bot.send_message(message.chat.id, help_text, parse_mode='HTML')
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "show_help")
+async def callback_help(call):
+    """Handle help button callback."""
+    help_text = """
+🤖 <b>Справка по Todoist Боту</b>
+
+<b>Быстрый старт</b>:
+1. Получите ваш API токен Todoist: https://todoist.com/prefs/integrations 
+   📋 Вкладка "Для разработчиков" → кнопка "Скопировать токен"
+2. Отправь токен прямо в бота сообщением
+3. Отправьте любое сообщение, чтобы создать задачу!
+
+<b>Использование</b>:
+• Отправьте любое текстовое сообщение чтобы создать задачу
+• Задачи создаются в ваших Входящих с приоритетом P3 (средний)
+• Каждое сообщение становится одной задачей
+
+<b>Примеры</b>:
+• "Купить продукты" → Задача: "Купить продукты"
+• "Позвонить стоматологу завтра" → Задача: "Позвонить стоматологу завтра"
+• "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
+    """
+    await bot.send_message(call.message.chat.id, help_text, parse_mode='HTML')
+    await bot.answer_callback_query(call.id)
+
+
+@bot.message_handler(content_types=['video'])
+async def get_video_file_id(message):
+    """Handle video messages and return file_id."""
+    file_id = message.video.file_id
+    response_text = f"📹 <b>File ID видео:</b>\n<code>{file_id}</code>\n\n💡 Этот ID можно использовать в коде для отправки видео."
+    
+    await bot.reply_to(message, response_text, parse_mode='HTML')
 
 
 @bot.message_handler(func=lambda message: True)
@@ -116,8 +157,9 @@ async def handle_message(message):
     if not await user_storage.has_token(user_id):
         await bot.reply_to(
             message, "❌ Сначала установите ваш токен Todoist!\n\n"
-            "Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
-            "Получите токен здесь: https://todoist.com/prefs/integrations")
+            "Отправь токен прямо в бота сообщением\n\n"
+            "Получите токен здесь: https://todoist.com/prefs/integrations",
+            parse_mode='Markdown')
         return
 
     # Get user's token
@@ -138,7 +180,7 @@ async def handle_message(message):
 
         # Create task with idempotency using Telegram message_id
         task = TodoistTask(content=message_text,
-                           priority=3,
+                           priority=2,
                            request_id=f"tg_{user_id}_{message.message_id}")
 
         # Create task in Todoist
@@ -149,7 +191,7 @@ async def handle_message(message):
             f"✅ **Задача успешно создана!**\n\n"
             f"📝 **Задача:** {task_response.content}\n"
             f"📁 **Место:** Входящие\n"
-            f"⭐ **Приоритет:** P{task_response.priority}\n"
+            f"⭐ **Приоритет:** P{5 - task_response.priority}\n"
             f"🔗 **Ссылка:** [Посмотреть в Todoist]({task_response.url})")
 
         await bot.edit_message_text(success_text,
@@ -177,9 +219,22 @@ async def handle_message(message):
         logger.error(f"Unexpected error for user {user_id}: {e}")
 
 
+async def setup_bot_commands():
+    """Set up bot menu commands."""
+    commands = [
+        types.BotCommand("start", "Как начать"),
+        types.BotCommand("help", "Справка"),
+    ]
+    await bot.set_my_commands(commands)
+    logger.info("Bot menu commands set up successfully")
+
+
 async def main():
     """Main async function to run the bot."""
     logger.info("Starting Todoist Telegram Bot...")
+
+    # Set up bot menu commands
+    await setup_bot_commands()
 
     try:
         await bot.polling(non_stop=True)
