@@ -199,7 +199,7 @@ async def setup_bot_commands():
     """Set up bot menu commands."""
     commands = [
         types.BotCommand("start", "Как начать"),
-        types.BotCommand("help", "Как начать пользоваться"),
+        types.BotCommand("help", "Справка"),
     ]
     await bot.set_my_commands(commands)
     logger.info("Bot menu commands set up successfully")
