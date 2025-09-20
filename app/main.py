@@ -29,6 +29,9 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 if not TELEGRAM_BOT_TOKEN:
     raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required")
 
+# Optional start video file_id
+START_VIDEO_FILE_ID = os.getenv('START_VIDEO_FILE_ID')
+
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
 
@@ -50,10 +53,18 @@ async def start_command(message):
                                        callback_data="show_help")
     keyboard.add(help_button)
 
-    await bot.send_message(message.chat.id,
-                           welcome_text,
-                           parse_mode='HTML',
-                           reply_markup=keyboard)
+    # Send video if file_id is configured, otherwise send text message
+    if START_VIDEO_FILE_ID:
+        await bot.send_video(message.chat.id,
+                             video=START_VIDEO_FILE_ID,
+                             caption=welcome_text,
+                             parse_mode='HTML',
+                             reply_markup=keyboard)
+    else:
+        await bot.send_message(message.chat.id,
+                               welcome_text,
+                               parse_mode='HTML',
+                               reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
