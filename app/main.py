@@ -6,6 +6,7 @@ import asyncio
 from dotenv import load_dotenv
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import re
 
 from .todoist_client import TodoistClient
@@ -41,10 +42,14 @@ async def start_command(message):
 • Создавай задачи за секунды, не покидая Telegram
 • Любая мысль мгновенно попадает в твой Todoist
 • Никаких переключений между приложениями
-
-Как начать пользоваться
     """
-    await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML')
+    
+    # Create inline keyboard with help button
+    keyboard = InlineKeyboardMarkup()
+    help_button = InlineKeyboardButton("Как начать пользоваться", callback_data="show_help")
+    keyboard.add(help_button)
+    
+    await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML', reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
@@ -70,6 +75,32 @@ async def help_command(message):
 • "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
     """
     await bot.send_message(message.chat.id, help_text, parse_mode='HTML')
+
+
+@bot.callback_query_handler(func=lambda call: call.data == "show_help")
+async def callback_help(call):
+    """Handle help button callback."""
+    help_text = """
+🤖 <b>Справка по Todoist Боту</b>
+
+<b>Быстрый старт</b>:
+1. Получите ваш API токен Todoist: https://todoist.com/prefs/integrations 
+   📋 Вкладка "Для разработчиков" → кнопка "Скопировать токен"
+2. Отправь токен прямо в бота сообщением
+3. Отправьте любое сообщение, чтобы создать задачу!
+
+<b>Использование</b>:
+• Отправьте любое текстовое сообщение чтобы создать задачу
+• Задачи создаются в ваших Входящих с приоритетом P3 (средний)
+• Каждое сообщение становится одной задачей
+
+<b>Примеры</b>:
+• "Купить продукты" → Задача: "Купить продукты"
+• "Позвонить стоматологу завтра" → Задача: "Позвонить стоматологу завтра"
+• "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
+    """
+    await bot.send_message(call.message.chat.id, help_text, parse_mode='HTML')
+    await bot.answer_callback_query(call.id)
 
 
 @bot.message_handler(func=lambda message: True)
