@@ -118,19 +118,6 @@ class UserTokenStorage:
         finally:
             await conn.close()
     
-    async def user_exists(self, telegram_user_id: int) -> bool:
-        """Check if user exists in database (has had any interaction).
-        
-        Args:
-            telegram_user_id: Telegram user ID
-            
-        Returns:
-            True if user exists in database, False otherwise
-        """
-        # For simplicity, we'll consider a user as 'existing' if they have a token entry
-        # This works because tokens are stored on first interaction
-        return await self.has_token(telegram_user_id)
-    
     async def remove_token(self, telegram_user_id: int) -> bool:
         """Remove a user's token.
         

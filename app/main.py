@@ -31,9 +31,10 @@ if not TELEGRAM_BOT_TOKEN:
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
 
 
-async def get_welcome_text():
-    """Get welcome message text."""
-    return """
+@bot.message_handler(commands=['start'])
+async def start_command(message):
+    """Handle /start command."""
+    welcome_text = """
 ⚡ Превращай любое сообщение в задачу Todoist за секунду!
 
 🚀 <b>Почему это удобно</b>:
@@ -49,12 +50,6 @@ async def get_welcome_text():
 
 Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
     """
-
-
-@bot.message_handler(commands=['start'])
-async def start_command(message):
-    """Handle /start command."""
-    welcome_text = await get_welcome_text()
     await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML')
 
 
@@ -105,21 +100,11 @@ async def handle_message(message):
 
     # Check if user has token
     if not await user_storage.has_token(user_id):
-        # Check if this is first interaction (user not in database)
-        user_exists = await user_storage.user_exists(user_id)
-        
-        if not user_exists:
-            # First time user - send full welcome message
-            welcome_text = await get_welcome_text()
-            await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML')
-        else:
-            # Returning user without token - send shorter reminder
-            await bot.reply_to(
-                message, "❌ Для создания задач нужен токен Todoist!\n\n"
-                "📋 Получите токен: https://todoist.com/prefs/integrations\n"
-                "   Вкладка \"Для разработчиков\" → \"Скопировать токен\"\n\n"
-                "Отправьте токен мне сообщением и можно будет создавать задачи! 🚀",
-                parse_mode='HTML')
+        await bot.reply_to(
+            message, "❌ Сначала установите ваш токен Todoist!\n\n"
+            "Отправь токен прямо в бота сообщением\n\n"
+            "Получите токен здесь: https://todoist.com/prefs/integrations",
+            parse_mode='Markdown')
         return
 
     # Get user's token
