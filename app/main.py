@@ -41,7 +41,7 @@ async def start_command(message):
 
 <b>Быстрый старт</b>:
 1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте `ВАШ_ТОКЕН_ЗДЕСЬ`
+2. Отправь токен прямо в бота сообщением
 3. Отправьте любое сообщение, чтобы создать задачу!
 
 <b>Команды</b>:
@@ -61,7 +61,7 @@ async def help_command(message):
 
 <b>Настройка</b>:
 1. Получите ваш API токен Todoist здесь: https://todoist.com/prefs/integrations
-2. Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`
+2. Отправь токен прямо в бота сообщением
 
 <b>Использование</b>:
 • Отправьте любое текстовое сообщение чтобы создать задачу
@@ -116,7 +116,7 @@ async def handle_message(message):
     if not await user_storage.has_token(user_id):
         await bot.reply_to(
             message, "❌ Сначала установите ваш токен Todoist!\n\n"
-            "Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
+            "Отправь токен прямо в бота сообщением\n\n"
             "Получите токен здесь: https://todoist.com/prefs/integrations",
             parse_mode='Markdown')
         return
