@@ -50,7 +50,7 @@ async def start_command(message):
 
 Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
     """
-    await bot.reply_to(message, welcome_text)
+    await bot.reply_to(message, welcome_text, parse_mode='Markdown')
 
 
 @bot.message_handler(commands=['help'])
@@ -83,7 +83,7 @@ async def help_command(message):
 • ✅ Обработка ошибок
 • ✅ Асинхронная обработка
     """
-    await bot.reply_to(message, help_text)
+    await bot.reply_to(message, help_text, parse_mode='Markdown')
 
 
 @bot.message_handler(func=lambda message: True)
@@ -117,7 +117,8 @@ async def handle_message(message):
         await bot.reply_to(
             message, "❌ Сначала установите ваш токен Todoist!\n\n"
             "Отправьте: `ВАШ_ТОКЕН_ЗДЕСЬ`\n\n"
-            "Получите токен здесь: https://todoist.com/prefs/integrations")
+            "Получите токен здесь: https://todoist.com/prefs/integrations",
+            parse_mode='Markdown')
         return
 
     # Get user's token
