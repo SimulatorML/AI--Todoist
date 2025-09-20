@@ -50,7 +50,7 @@ async def start_command(message):
 
 Пример: "Купить молоко" → Создаст задачу "Купить молоко" в ваших Входящих
     """
-    await bot.reply_to(message, welcome_text, parse_mode='HTML')
+    await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML')
 
 
 @bot.message_handler(commands=['help'])
@@ -69,7 +69,7 @@ async def help_command(message):
 • "Позвонить стоматологу завтра" → Задача: "Позвонить стоматологу завтра"
 • "Просмотреть презентацию" → Задача: "Просмотреть презентацию"
     """
-    await bot.reply_to(message, help_text, parse_mode='HTML')
+    await bot.send_message(message.chat.id, help_text, parse_mode='HTML')
 
 
 @bot.message_handler(func=lambda message: True)
