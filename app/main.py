@@ -50,11 +50,10 @@ async def start_command(message):
                                        callback_data="show_help")
     keyboard.add(help_button)
 
-    await bot.send_video(message.chat.id,
-                         video="521343779",
-                         caption=welcome_text,
-                         parse_mode='HTML',
-                         reply_markup=keyboard)
+    await bot.send_message(message.chat.id,
+                           welcome_text,
+                           parse_mode='HTML',
+                           reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
