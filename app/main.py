@@ -125,7 +125,7 @@ async def handle_message(message):
 
         # Create task with idempotency using Telegram message_id
         task = TodoistTask(content=message_text,
-                           priority=3,
+                           priority=2,
                            request_id=f"tg_{user_id}_{message.message_id}")
 
         # Create task in Todoist
@@ -136,7 +136,7 @@ async def handle_message(message):
             f"✅ **Задача успешно создана!**\n\n"
             f"📝 **Задача:** {task_response.content}\n"
             f"📁 **Место:** Входящие\n"
-            f"⭐ **Приоритет:** P{task_response.priority}\n"
+            f"⭐ **Приоритет:** P{5 - task_response.priority}\n"
             f"🔗 **Ссылка:** [Посмотреть в Todoist]({task_response.url})")
 
         await bot.edit_message_text(success_text,
