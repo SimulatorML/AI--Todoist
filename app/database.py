@@ -57,9 +57,11 @@ class UserTokenStorage:
         async with aiosqlite.connect(self.db_path) as conn:
             try:
                 await conn.execute("""
-                    INSERT OR REPLACE INTO user_tokens 
-                    (telegram_user_id, todoist_token, created_at, updated_at)
+                    INSERT INTO user_tokens (telegram_user_id, todoist_token, created_at, updated_at)
                     VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    ON CONFLICT(telegram_user_id) DO UPDATE SET
+                        todoist_token = excluded.todoist_token,
+                        updated_at = CURRENT_TIMESTAMP
                 """, (telegram_user_id, todoist_token))
                 await conn.commit()
                 
