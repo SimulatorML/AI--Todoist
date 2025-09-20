@@ -178,9 +178,22 @@ async def handle_message(message):
         logger.error(f"Unexpected error for user {user_id}: {e}")
 
 
+async def setup_bot_commands():
+    """Set up bot menu commands."""
+    commands = [
+        types.BotCommand("start", "Показать инструкцию"),
+        types.BotCommand("help", "Получить помощь"),
+    ]
+    await bot.set_my_commands(commands)
+    logger.info("Bot menu commands set up successfully")
+
+
 async def main():
     """Main async function to run the bot."""
     logger.info("Starting Todoist Telegram Bot...")
+    
+    # Set up bot menu commands
+    await setup_bot_commands()
 
     try:
         await bot.polling(non_stop=True)
