@@ -43,13 +43,17 @@ async def start_command(message):
 • Любая мысль мгновенно попадает в твой Todoist
 • Никаких переключений между приложениями
     """
-    
+
     # Create inline keyboard with help button
     keyboard = InlineKeyboardMarkup()
-    help_button = InlineKeyboardButton("Как начать пользоваться", callback_data="show_help")
+    help_button = InlineKeyboardButton("Как начать пользоваться",
+                                       callback_data="show_help")
     keyboard.add(help_button)
-    
-    await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML', reply_markup=keyboard)
+
+    await bot.send_message(message.chat.id,
+                           welcome_text,
+                           parse_mode='HTML',
+                           reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['help'])
@@ -61,11 +65,11 @@ async def help_command(message):
 <b>Быстрый старт</b>:
 1. Получите ваш API токен Todoist: https://todoist.com/prefs/integrations 
    📋 Вкладка "Для разработчиков" → кнопка "Скопировать токен"
-2. Отправь токен прямо в бота сообщением
+2. Отправьте токен прямо в бота сообщением
 3. Отправьте любое сообщение, чтобы создать задачу!
 
 <b>Использование</b>:
-• Отправьте любое текстовое сообщение чтобы создать задачу
+• Отправьте любое текстовое сообщение, чтобы создать задачу
 • Задачи создаются в ваших Входящих с приоритетом P3 (средний)
 • Каждое сообщение становится одной задачей
 
@@ -208,7 +212,7 @@ async def setup_bot_commands():
 async def main():
     """Main async function to run the bot."""
     logger.info("Starting Todoist Telegram Bot...")
-    
+
     # Set up bot menu commands
     await setup_bot_commands()
 
