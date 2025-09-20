@@ -17,6 +17,9 @@ venv.bak/
 bot.db
 *.db
 
+# Temporary assets
+attached_assets/
+
 # OS
 .DS_Store
 
