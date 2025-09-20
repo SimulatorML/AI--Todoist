@@ -42,7 +42,7 @@ async def start_command(message):
 • Любая мысль мгновенно попадает в твой Todoist
 • Никаких переключений между приложениями
 
-<code>/help</code> - <a href="/help">Как начать пользоваться</a>
+<code>/help</code> - Как начать пользоваться
     """
     await bot.send_message(message.chat.id, welcome_text, parse_mode='HTML')
 
