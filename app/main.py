@@ -185,7 +185,6 @@ async def handle_message(message):
 
         task = TodoistTask(content=message_text,
                            due_date=due_date,
-                           priority=3,
                            priority=2,
                            request_id=f"tg_{user_id}_{message.message_id}")
 
