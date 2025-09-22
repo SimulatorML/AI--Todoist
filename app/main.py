@@ -9,6 +9,8 @@ from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import re
 
+from app.nlp import NLP
+
 from .todoist_client import TodoistClient
 from .models import TodoistTask, BotResponse
 from .database import user_storage
@@ -33,7 +35,7 @@ if not TELEGRAM_BOT_TOKEN:
 START_VIDEO_FILE_ID = os.getenv('START_VIDEO_FILE_ID')
 
 bot = AsyncTeleBot(TELEGRAM_BOT_TOKEN)
-
+nlp = NLP()
 
 @bot.message_handler(commands=['start'])
 async def start_command(message):
@@ -179,7 +181,10 @@ async def handle_message(message):
         todoist_client = TodoistClient(todoist_token)
 
         # Create task with idempotency using Telegram message_id
+        due_date = nlp.get_first_date_in_future(message_text)
+
         task = TodoistTask(content=message_text,
+                           due_date=due_date,
                            priority=2,
                            request_id=f"tg_{user_id}_{message.message_id}")
 
@@ -192,6 +197,7 @@ async def handle_message(message):
             f"📝 **Задача:** {task_response.content}\n"
             f"📁 **Место:** Входящие\n"
             f"⭐ **Приоритет:** P{5 - task_response.priority}\n"
+            f"📅 **Срок:** {task_response.due.date if task_response.due else 'Без срока'}\n"
             f"🔗 **Ссылка:** [Посмотреть в Todoist]({task_response.url})")
 
         await bot.edit_message_text(success_text,

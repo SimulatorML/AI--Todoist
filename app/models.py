@@ -2,12 +2,22 @@
 
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
+class Due(BaseModel):
+    """Represents the due date information for a Todoist task."""
+    date: Optional[str] = None
+    string: Optional[str] = None
+    lang: Optional[str] = None
+    is_recurring: Optional[bool] = None
+    datetime: Optional[datetime] = None
+    timezone: Optional[str] = None
 
 class TodoistTask(BaseModel):
     """Model for creating a new Todoist task."""
     content: str
     project_id: Optional[str] = None
+    due_date: Optional[str] = None
     due_string: Optional[str] = None
     priority: int = 2
     request_id: Optional[str] = None
@@ -19,6 +29,7 @@ class TodoistTaskResponse(BaseModel):
     content: str
     project_id: str
     priority: int
+    due: Optional[Due] 
     url: str
 
 

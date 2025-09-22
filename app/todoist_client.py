@@ -44,6 +44,8 @@ class TodoistClient:
                 # Add optional fields if provided
                 if task.project_id:
                     task_data["project_id"] = task.project_id
+                if task.due_date:
+                    task_data["due_date"] = task.due_date
                 if task.due_string:
                     task_data["due_string"] = task.due_string
                 if task.request_id:
@@ -67,6 +69,7 @@ class TodoistClient:
                     content=task_response["content"],
                     project_id=task_response["project_id"],
                     priority=task_response["priority"],
+                    due=task_response.get("due"),
                     url=task_response["url"]
                 )
                 
