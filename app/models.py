@@ -6,10 +6,10 @@ from datetime import datetime
 
 class Due(BaseModel):
     """Represents the due date information for a Todoist task."""
-    date: str
-    string: str
-    lang: str
-    is_recurring: bool
+    date: Optional[str] = None
+    string: Optional[str] = None
+    lang: Optional[str] = None
+    is_recurring: Optional[bool] = None
     datetime: Optional[datetime] = None
     timezone: Optional[str] = None
 
