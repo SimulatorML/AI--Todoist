@@ -1,7 +1,7 @@
 """Tests for Pydantic models."""
 
 import pytest
-from app.models import TodoistTask, TodoistTaskResponse, BotResponse, UserToken
+from app.models import TodoistTask, TodoistTaskResponse, BotResponse, TokenAttempts, UserToken
 
 
 def test_todoist_task_creation():
@@ -71,3 +71,17 @@ def test_user_token():
     assert token.telegram_user_id == 12345
     assert token.todoist_token == "abc123xyz"
     assert token.created_at == "2025-01-01T00:00:00"
+
+
+
+def test_token_attempts():
+    """Test TokenAttempts model."""
+    token = TokenAttempts(
+        telegram_user_id=12345,
+        attempt_time="2025-01-01T00:00:00",
+        success=True
+    )
+    
+    assert token.telegram_user_id == 12345
+    assert token.attempt_time == "2025-01-01T00:00:00"
+    assert token.success == True
