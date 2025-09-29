@@ -129,11 +129,19 @@ async def get_video_file_id(message):
     await bot.reply_to(message, response_text, parse_mode='HTML')
 
 
+def escape_chars_safe(text):
+    chars_to_escape = ['_', '*', '`']
+    for char in chars_to_escape:
+        text = text.replace(char, '\' + char)
+    return text
+
 @bot.message_handler(func=lambda message: True)
 async def handle_message(message):
     """Handle all text messages and create Todoist tasks."""
     user_id = message.from_user.id
     message_text = message.text
+
+    message_text = escape_chars_safe(message_text)
 
     if token_regex.search(message_text):
         # Validate token by testing API connection
