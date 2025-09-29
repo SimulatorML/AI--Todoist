@@ -66,7 +66,6 @@ class TokenRateLimiter:
         """
         recent_attempts = await self.get_recent_attempts(telegram_user_id, self.timeout_minutes)
         
-        print(recent_attempts)
         if recent_attempts >= self.max_attempts:
             return False, f"❌ Превышено максимальное количество попыток ввода токена ({self.max_attempts}).\n\n⏰ Попробуйте снова через {self.timeout_minutes} минут."
         
