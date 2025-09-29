@@ -13,7 +13,7 @@ from app.nlp import NLP
 
 from .todoist_client import TodoistClient
 from .models import TodoistTask, BotResponse
-from .database import user_storage
+from .database import user_storage, rate_limiter
 
 # Load environment variables
 load_dotenv()
@@ -144,6 +144,17 @@ async def handle_message(message):
     message_text = escape_chars_safe(message_text)
 
     if token_regex.search(message_text):
+        # Check rate limit before processing token
+        can_attempt, rate_limit_message = await rate_limiter.can_attempt(user_id)
+        
+        if not can_attempt:
+            await bot.reply_to(message, rate_limit_message)
+            return
+        
+        # Show warning if few attempts left
+        if rate_limit_message:
+            await bot.reply_to(message, rate_limit_message)
+        
         # Validate token by testing API connection
         try:
             todoist_client = TodoistClient(message_text)
@@ -151,6 +162,10 @@ async def handle_message(message):
 
             # Store token
             await user_storage.store_token(user_id, message_text)
+            
+            # Record successful attempt
+            await rate_limiter.record_attempt(user_id, True)
+            
             await bot.reply_to(
                 message, "✅ Токен успешно сохранен!\n\n"
                 "Теперь вы можете отправлять мне сообщения для создания задач в Todoist."
@@ -158,6 +173,9 @@ async def handle_message(message):
             return
 
         except Exception as e:
+            # Record failed attempt
+            await rate_limiter.record_attempt(user_id, False)
+            
             await bot.reply_to(
                 message, f"❌ Неверный токен или ошибка API: {str(e)}\n\n"
                 "Пожалуйста, проверьте ваш токен и попробуйте снова.")

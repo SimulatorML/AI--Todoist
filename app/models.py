@@ -45,3 +45,9 @@ class UserToken(BaseModel):
     telegram_user_id: int
     todoist_token: str
     created_at: Optional[str] = None
+
+class TokenAttempts(BaseModel):
+    """Model for storing token attempts."""
+    telegram_user_id: int
+    attempt_time: str
+    success: bool
