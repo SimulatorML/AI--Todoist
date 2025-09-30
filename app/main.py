@@ -128,7 +128,7 @@ async def get_video_file_id(message):
     
     await bot.reply_to(message, response_text, parse_mode='HTML')
 
-
+# Добавил функцию, чтобы избегать ошибок с markdown символами
 def escape_chars_safe(text):
     chars_to_escape = ['_', '*', '`']
     for char in chars_to_escape:
